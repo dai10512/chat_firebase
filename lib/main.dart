@@ -22,9 +22,11 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
+    final isLogin = FirebaseAuth.instance.currentUser == null;
+
     return MaterialApp(
       theme: ThemeData(),
-      home: const SignInPage(),
+      home: isLogin ? const ChatPage() : const SignInPage(),
     );
   }
 }
@@ -80,10 +82,12 @@ class _SignInPageState extends State<SignInPage> {
   }
 }
 
-final postReference = FirebaseFirestore.instance
-    .collection('posts')
-    .withConverter<Post>(fromFirestore: (snapshot, _) {
-  return Post.fromFirestore(snapshot);
-}, toFirestore: (value, _) {
-  return value.toMap();
-});
+final postsReference =
+    FirebaseFirestore.instance.collection('posts').withConverter<Post>(
+  fromFirestore: ((snapshot, _) {
+    return Post.fromFirestore(snapshot); //取得したデータを自動でPostインスタンスにしてくれ
+  }),
+  toFirestore: ((value, _) {
+    return value.toMap(); //Postインスタンスで受けると自動でMapにしてくれる
+  }),
+);
