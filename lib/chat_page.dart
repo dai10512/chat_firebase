@@ -1,6 +1,6 @@
-import 'package:chat_firebase/main.dart';
 import 'package:chat_firebase/post.dart';
 import 'package:chat_firebase/providers/posts_provider.dart';
+import 'package:chat_firebase/providers/posts_reference_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +23,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
     final posterName = user.displayName!;
     final posterImageUrl = user.photoURL!;
 
-    final newDocumentReference = postsReferenceWithConverter.doc();
+    // final newDocumentReference = postsReferenceWithConverter.doc();
 
     final newPost = Post(
       text: text,
@@ -31,10 +31,10 @@ class _ChatPageState extends ConsumerState<ChatPage> {
       posterName: posterName,
       posterImageUrl: posterImageUrl,
       posterId: posterId,
-      reference: newDocumentReference,
+      reference: ref.read(postsReferenceProvider).doc(),
     );
 
-    newDocumentReference.set(newPost);
+    newPost.reference.set(newPost);
   }
 
   final controller = TextEditingController();
@@ -75,12 +75,13 @@ class _ChatPageState extends ConsumerState<ChatPage> {
           child: Column(
             children: [
               Expanded(
-                child: ref.watch(postsProvider1).when(
+                child: ref.watch(postsProvider).when(
                   data: (data) {
                     /// 値が取得できた場合に呼ばれる。
                     return ListView.builder(
                       itemCount: data.docs.length,
                       itemBuilder: (context, index) {
+                        print(data.docs.length);
                         final post = data.docs[index].data();
                         return PostWidget(post: post);
                       },
