@@ -1,4 +1,4 @@
-import 'package:chat_firebase/chat_page.dart';
+import 'package:chat_firebase/providers/firebase_auth_provider.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import 'chat_page.dart';
 import 'firebase_options.dart';
-import 'providers/posts_provider.dart';
+import 'providers/firestore_provider.dart';
 
 Future<void> main() async {
   // main 関数でも async が使えます
@@ -26,15 +27,27 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
   @override
-  Widget build(BuildContext context) {
-    final isLogin = FirebaseAuth.instance.currentUser == null;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider);
 
     return MaterialApp(
       theme: ThemeData(),
-      home: isLogin ? const ChatPage() : const SignInPage(),
+      home: user.maybeWhen(
+        data: (data) {
+          if (data == null) {
+            return const SignInPage();
+          }
+          return const ChatPage();
+        },
+        orElse: () {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
     );
   }
 }
@@ -73,7 +86,6 @@ class _SignInPageState extends State<SignInPage> {
           child: const Text('GoogleSignIn'),
           onPressed: () async {
             await signInWithGoogle();
-            print(FirebaseAuth.instance.currentUser?.displayName);
             if (mounted) {
               Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
                 builder: (context) {
@@ -87,13 +99,3 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 }
-
-// final postsReferenceWithConverter =
-//     FirebaseFirestore.instance.collection('posts').withConverter<Post>(
-//   fromFirestore: ((snapshot, _) {
-//     return Post.fromFirestore(snapshot); //取得したデータを自動でPostインスタンスにしてくれ
-//   }),
-//   toFirestore: ((value, _) {
-//     return value.toMap(); //Postインスタンスで受けると自動でMapにしてくれる
-//   }),
-// );

@@ -1,6 +1,6 @@
-import 'package:chat_firebase/post.dart';
-import 'package:chat_firebase/providers/posts_provider.dart';
-import 'package:chat_firebase/providers/posts_reference_provider.dart';
+import 'post.dart';
+import 'providers/posts_provider.dart';
+import 'providers/posts_reference_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

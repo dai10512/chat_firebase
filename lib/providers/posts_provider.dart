@@ -1,5 +1,4 @@
-import 'package:chat_firebase/providers/posts_reference_provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'posts_reference_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final postsProvider = StreamProvider(
@@ -9,6 +8,4 @@ final postsProvider = StreamProvider(
   },
 );
 
-final firestoreProvider = Provider(
-  ((ref) => FirebaseFirestore.instance),
-);
+

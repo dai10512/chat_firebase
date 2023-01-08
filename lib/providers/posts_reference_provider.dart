@@ -1,7 +1,7 @@
-import 'package:chat_firebase/providers/posts_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../post.dart';
+import 'firestore_provider.dart';
 
 final postsReferenceProvider = Provider(
   (ref) {
