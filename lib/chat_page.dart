@@ -1,20 +1,21 @@
 import 'package:chat_firebase/main.dart';
 import 'package:chat_firebase/post.dart';
+import 'package:chat_firebase/providers/posts_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'my_page.dart';
 
-class ChatPage extends StatefulWidget {
+class ChatPage extends ConsumerStatefulWidget {
   const ChatPage({super.key});
-
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends ConsumerState<ChatPage> {
   Future<void> sendPost(String text) async {
     final user = FirebaseAuth.instance.currentUser!;
 
@@ -22,7 +23,7 @@ class _ChatPageState extends State<ChatPage> {
     final posterName = user.displayName!;
     final posterImageUrl = user.photoURL!;
 
-    final newDocumentReference = postsReference.doc();
+    final newDocumentReference = postsReferenceWithConverter.doc();
 
     final newPost = Post(
       text: text,
@@ -74,17 +75,27 @@ class _ChatPageState extends State<ChatPage> {
           child: Column(
             children: [
               Expanded(
-                child: StreamBuilder<QuerySnapshot<Post>>(
-                  stream: postsReference.orderBy('createdAt').snapshots(),
-                  builder: (context, snapshot) {
-                    final docs = snapshot.data?.docs ?? [];
-
+                child: ref.watch(postsProvider1).when(
+                  data: (data) {
+                    /// 値が取得できた場合に呼ばれる。
                     return ListView.builder(
-                      itemCount: docs.length,
+                      itemCount: data.docs.length,
                       itemBuilder: (context, index) {
-                        final post = docs[index].data();
+                        final post = data.docs[index].data();
                         return PostWidget(post: post);
                       },
+                    );
+                  },
+                  error: (_, __) {
+                    /// 読み込み中にErrorが発生した場合に呼ばれる。
+                    return const Center(
+                      child: Text('不具合が発生しました。'),
+                    );
+                  },
+                  loading: () {
+                    /// 読み込み中の場合に呼ばれる。
+                    return const Center(
+                      child: CircularProgressIndicator(),
                     );
                   },
                 ),

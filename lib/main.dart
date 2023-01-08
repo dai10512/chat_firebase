@@ -82,7 +82,7 @@ class _SignInPageState extends State<SignInPage> {
   }
 }
 
-final postsReference =
+final postsReferenceWithConverter =
     FirebaseFirestore.instance.collection('posts').withConverter<Post>(
   fromFirestore: ((snapshot, _) {
     return Post.fromFirestore(snapshot); //取得したデータを自動でPostインスタンスにしてくれ
